@@ -1,10 +1,9 @@
 """Implementation of the DOM Level 3 'LS-Load' feature."""
 
 import copy
+
 import xml.dom
-
 from xml.dom.NodeFilter import NodeFilter
-
 
 __all__ = ["DOMBuilder", "DOMEntityResolver", "DOMInputSource"]
 
@@ -59,16 +58,19 @@ class DOMBuilder:
 
     def _get_entityResolver(self):
         return self.entityResolver
+
     def _set_entityResolver(self, entityResolver):
         self.entityResolver = entityResolver
 
     def _get_errorHandler(self):
         return self.errorHandler
+
     def _set_errorHandler(self, errorHandler):
         self.errorHandler = errorHandler
 
     def _get_filter(self):
         return self.filter
+
     def _set_filter(self, filter):
         self.filter = filter
 
@@ -268,36 +270,43 @@ class DOMInputSource(object):
 
     def _get_byteStream(self):
         return self.byteStream
+
     def _set_byteStream(self, byteStream):
         self.byteStream = byteStream
 
     def _get_characterStream(self):
         return self.characterStream
+
     def _set_characterStream(self, characterStream):
         self.characterStream = characterStream
 
     def _get_stringData(self):
         return self.stringData
+
     def _set_stringData(self, data):
         self.stringData = data
 
     def _get_encoding(self):
         return self.encoding
+
     def _set_encoding(self, encoding):
         self.encoding = encoding
 
     def _get_publicId(self):
         return self.publicId
+
     def _set_publicId(self, publicId):
         self.publicId = publicId
 
     def _get_systemId(self):
         return self.systemId
+
     def _set_systemId(self, systemId):
         self.systemId = systemId
 
     def _get_baseURI(self):
         return self.baseURI
+
     def _set_baseURI(self, uri):
         self.baseURI = uri
 
@@ -328,6 +337,7 @@ class DOMBuilderFilter:
     def startContainer(self, element):
         return self.FILTER_ACCEPT
 
+
 del NodeFilter
 
 
@@ -338,6 +348,7 @@ class DocumentLS:
 
     def _get_async(self):
         return False
+
     def _set_async(self, async):
         if async:
             raise xml.dom.NotSupportedErr(

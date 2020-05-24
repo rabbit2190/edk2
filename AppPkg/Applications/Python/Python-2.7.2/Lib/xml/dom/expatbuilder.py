@@ -27,13 +27,13 @@ This avoids all the overhead of SAX and pulldom to gain performance.
 #      calling any methods on the node object if it exists.  (A rather
 #      nice speedup is achieved this way as well!)
 
-from xml.dom import xmlbuilder, minidom, Node
-from xml.dom import EMPTY_NAMESPACE, EMPTY_PREFIX, XMLNS_NAMESPACE
 from xml.parsers import expat
-from xml.dom.minidom import _append_child, _set_attribute_node
-from xml.dom.NodeFilter import NodeFilter
 
+from xml.dom import EMPTY_NAMESPACE, EMPTY_PREFIX, XMLNS_NAMESPACE
+from xml.dom import xmlbuilder, minidom, Node
+from xml.dom.NodeFilter import NodeFilter
 from xml.dom.minicompat import *
+from xml.dom.minidom import _append_child, _set_attribute_node
 
 TEXT_NODE = Node.TEXT_NODE
 CDATA_SECTION_NODE = Node.CDATA_SECTION_NODE
@@ -48,16 +48,17 @@ theDOMImplementation = minidom.getDOMImplementation()
 
 # Expat typename -> TypeInfo
 _typeinfo_map = {
-    "CDATA":    minidom.TypeInfo(None, "cdata"),
-    "ENUM":     minidom.TypeInfo(None, "enumeration"),
-    "ENTITY":   minidom.TypeInfo(None, "entity"),
+    "CDATA": minidom.TypeInfo(None, "cdata"),
+    "ENUM": minidom.TypeInfo(None, "enumeration"),
+    "ENTITY": minidom.TypeInfo(None, "entity"),
     "ENTITIES": minidom.TypeInfo(None, "entities"),
-    "ID":       minidom.TypeInfo(None, "id"),
-    "IDREF":    minidom.TypeInfo(None, "idref"),
-    "IDREFS":   minidom.TypeInfo(None, "idrefs"),
-    "NMTOKEN":  minidom.TypeInfo(None, "nmtoken"),
+    "ID": minidom.TypeInfo(None, "id"),
+    "IDREF": minidom.TypeInfo(None, "idref"),
+    "IDREFS": minidom.TypeInfo(None, "idrefs"),
+    "NMTOKEN": minidom.TypeInfo(None, "nmtoken"),
     "NMTOKENS": minidom.TypeInfo(None, "nmtokens"),
-    }
+}
+
 
 class ElementInfo(object):
     __slots__ = '_attr_info', '_model', 'tagName'
@@ -110,8 +111,10 @@ class ElementInfo(object):
         # not sure this is meaningful
         return self.isId((auri, aname))
 
+
 def _intern(builder, s):
     return builder._intern_setdefault(s, s)
+
 
 def _parse_ns_name(builder, name):
     assert ' ' in name
@@ -201,7 +204,7 @@ class ExpatBuilder:
         first_buffer = True
         try:
             while 1:
-                buffer = file.read(16*1024)
+                buffer = file.read(16 * 1024)
                 if not buffer:
                     break
                 parser.Parse(buffer, 0)
@@ -274,8 +277,8 @@ class ExpatBuilder:
     def character_data_handler_cdata(self, data):
         childNodes = self.curNode.childNodes
         if self._cdata:
-            if (  self._cdata_continue
-                  and childNodes[-1].nodeType == CDATA_SECTION_NODE):
+            if (self._cdata_continue
+                    and childNodes[-1].nodeType == CDATA_SECTION_NODE):
                 childNodes[-1].appendData(data)
                 return
             node = self.document.createCDATASection(data)
@@ -362,7 +365,7 @@ class ExpatBuilder:
             for i in range(0, len(attributes), 2):
                 a = minidom.Attr(attributes[i], EMPTY_NAMESPACE,
                                  None, EMPTY_PREFIX)
-                value = attributes[i+1]
+                value = attributes[i + 1]
                 d = a.childNodes[0].__dict__
                 d['data'] = d['nodeValue'] = value
                 d = a.__dict__
@@ -414,7 +417,7 @@ class ExpatBuilder:
 
     def _handle_white_text_nodes(self, node, info):
         if (self._options.whitespace_in_element_content
-            or not info.isElementContent()):
+                or not info.isElementContent()):
             return
 
         # We have element type information and should remove ignorable
@@ -460,6 +463,7 @@ class ExpatBuilder:
 # where allowed.
 _ALLOWED_FILTER_RETURNS = (FILTER_ACCEPT, FILTER_REJECT, FILTER_SKIP)
 
+
 class FilterVisibilityController(object):
     """Wrapper around a DOMBuilderFilter which implements the checks
     to make the whatToShow filter attribute work."""
@@ -477,7 +481,7 @@ class FilterVisibilityController(object):
                 raise ParseEscape
             if val not in _ALLOWED_FILTER_RETURNS:
                 raise ValueError, \
-                      "startContainer() returned illegal value: " + repr(val)
+                    "startContainer() returned illegal value: " + repr(val)
             return val
         else:
             return FILTER_ACCEPT
@@ -497,25 +501,25 @@ class FilterVisibilityController(object):
                 return FILTER_REJECT
             if val not in _ALLOWED_FILTER_RETURNS:
                 raise ValueError, \
-                      "acceptNode() returned illegal value: " + repr(val)
+                    "acceptNode() returned illegal value: " + repr(val)
             return val
         else:
             return FILTER_ACCEPT
 
     _nodetype_mask = {
-        Node.ELEMENT_NODE:                NodeFilter.SHOW_ELEMENT,
-        Node.ATTRIBUTE_NODE:              NodeFilter.SHOW_ATTRIBUTE,
-        Node.TEXT_NODE:                   NodeFilter.SHOW_TEXT,
-        Node.CDATA_SECTION_NODE:          NodeFilter.SHOW_CDATA_SECTION,
-        Node.ENTITY_REFERENCE_NODE:       NodeFilter.SHOW_ENTITY_REFERENCE,
-        Node.ENTITY_NODE:                 NodeFilter.SHOW_ENTITY,
+        Node.ELEMENT_NODE: NodeFilter.SHOW_ELEMENT,
+        Node.ATTRIBUTE_NODE: NodeFilter.SHOW_ATTRIBUTE,
+        Node.TEXT_NODE: NodeFilter.SHOW_TEXT,
+        Node.CDATA_SECTION_NODE: NodeFilter.SHOW_CDATA_SECTION,
+        Node.ENTITY_REFERENCE_NODE: NodeFilter.SHOW_ENTITY_REFERENCE,
+        Node.ENTITY_NODE: NodeFilter.SHOW_ENTITY,
         Node.PROCESSING_INSTRUCTION_NODE: NodeFilter.SHOW_PROCESSING_INSTRUCTION,
-        Node.COMMENT_NODE:                NodeFilter.SHOW_COMMENT,
-        Node.DOCUMENT_NODE:               NodeFilter.SHOW_DOCUMENT,
-        Node.DOCUMENT_TYPE_NODE:          NodeFilter.SHOW_DOCUMENT_TYPE,
-        Node.DOCUMENT_FRAGMENT_NODE:      NodeFilter.SHOW_DOCUMENT_FRAGMENT,
-        Node.NOTATION_NODE:               NodeFilter.SHOW_NOTATION,
-        }
+        Node.COMMENT_NODE: NodeFilter.SHOW_COMMENT,
+        Node.DOCUMENT_NODE: NodeFilter.SHOW_DOCUMENT,
+        Node.DOCUMENT_TYPE_NODE: NodeFilter.SHOW_DOCUMENT_TYPE,
+        Node.DOCUMENT_FRAGMENT_NODE: NodeFilter.SHOW_DOCUMENT_FRAGMENT,
+        Node.NOTATION_NODE: NodeFilter.SHOW_NOTATION,
+    }
 
 
 class FilterCrutch(object):
@@ -529,6 +533,7 @@ class FilterCrutch(object):
         self._old_end = parser.EndElementHandler
         parser.StartElementHandler = self.start_element_handler
         parser.EndElementHandler = self.end_element_handler
+
 
 class Rejecter(FilterCrutch):
     __slots__ = ()
@@ -558,6 +563,7 @@ class Rejecter(FilterCrutch):
         else:
             self._level = self._level - 1
 
+
 class Skipper(FilterCrutch):
     __slots__ = ()
 
@@ -586,16 +592,16 @@ _FRAGMENT_BUILDER_INTERNAL_SYSTEM_ID = \
     "http://xml.python.org/entities/fragment-builder/internal"
 
 _FRAGMENT_BUILDER_TEMPLATE = (
-    '''\
-<!DOCTYPE wrapper
-  %%s [
-  <!ENTITY fragment-builder-internal
-    SYSTEM "%s">
-%%s
-]>
-<wrapper %%s
->&fragment-builder-internal;</wrapper>'''
-    % _FRAGMENT_BUILDER_INTERNAL_SYSTEM_ID)
+        '''\
+    <!DOCTYPE wrapper
+      %%s [
+      <!ENTITY fragment-builder-internal
+        SYSTEM "%s">
+    %%s
+    ]>
+    <wrapper %%s
+    >&fragment-builder-internal;</wrapper>'''
+        % _FRAGMENT_BUILDER_INTERNAL_SYSTEM_ID)
 
 
 class FragmentBuilder(ExpatBuilder):
@@ -641,7 +647,7 @@ class FragmentBuilder(ExpatBuilder):
                 ident = 'SYSTEM "%s"' % doctype.systemId
         else:
             subset = ""
-        nsattrs = self._getNSattrs() # get ns decls from node's ancestors
+        nsattrs = self._getNSattrs()  # get ns decls from node's ancestors
         document = _FRAGMENT_BUILDER_TEMPLATE % (ident, subset, nsattrs)
         try:
             parser.Parse(document, 1)
@@ -650,7 +656,7 @@ class FragmentBuilder(ExpatBuilder):
             raise
         fragment = self.fragment
         self.reset()
-##         self._parser = None
+        ##         self._parser = None
         return fragment
 
     def _getDeclarations(self):
@@ -774,7 +780,7 @@ class Namespaces:
             _attrsNS = node._attrsNS
             for i in range(0, len(attributes), 2):
                 aname = attributes[i]
-                value = attributes[i+1]
+                value = attributes[i + 1]
                 if ' ' in aname:
                     uri, localname, prefix, qname = _parse_ns_name(self, aname)
                     a = minidom.Attr(qname, uri, localname, prefix)
@@ -805,12 +811,12 @@ class Namespaces:
                 assert (curNode.namespaceURI == uri
                         and curNode.localName == localname
                         and curNode.prefix == prefix), \
-                        "element stack messed up! (namespace)"
+                    "element stack messed up! (namespace)"
             else:
                 assert curNode.nodeName == name, \
-                       "element stack messed up - bad nodeName"
+                    "element stack messed up - bad nodeName"
                 assert curNode.namespaceURI == EMPTY_NAMESPACE, \
-                       "element stack messed up - bad namespaceURI"
+                    "element stack messed up - bad namespaceURI"
             self.curNode = curNode.parentNode
             self._finish_end_element(curNode)
 
@@ -863,6 +869,7 @@ class FragmentBuilderNS(Namespaces, FragmentBuilder):
 class ParseEscape(Exception):
     """Exception raised to short-circuit parsing in InternalSubsetExtractor."""
     pass
+
 
 class InternalSubsetExtractor(ExpatBuilder):
     """XML processor which can rip out the internal document type subset."""

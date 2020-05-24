@@ -65,10 +65,11 @@ THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
 WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 """
 
-import sys
 import os
-import __builtin__
+import sys
 import traceback
+
+import __builtin__
 
 # Prefixes for site-packages; add additional prefixes like /usr/local here
 PREFIXES = [sys.prefix, sys.exec_prefix]
@@ -96,7 +97,7 @@ def abs__file__():
     """Set all module' __file__ attribute to an absolute path"""
     for m in sys.modules.values():
         if hasattr(m, '__loader__'):
-            continue   # don't mess with a PEP 302-supplied __file__
+            continue  # don't mess with a PEP 302-supplied __file__
         try:
             m.__file__ = os.path.abspath(m.__file__)
         except (AttributeError, OSError):
@@ -156,7 +157,8 @@ def addpackage(sitedir, name, known_paths):
                 continue
             try:
                 if line.startswith(("import ", "import\t")):
-                    exec line
+                    exec
+                    line
                     continue
                 line = line.rstrip()
                 dir, dircase = makepath(sitedir, line)
@@ -164,12 +166,12 @@ def addpackage(sitedir, name, known_paths):
                     sys.path.append(dir)
                     known_paths.add(dircase)
             except Exception as err:
-                print >>sys.stderr, "Error processing line {:d} of {}:\n".format(
-                    n+1, fullname)
+                print >> sys.stderr, "Error processing line {:d} of {}:\n".format(
+                    n + 1, fullname)
                 for record in traceback.format_exception(*sys.exc_info()):
                     for line in record.splitlines():
-                        print >>sys.stderr, '  '+line
-                print >>sys.stderr, "\nRemainder of file ignored"
+                        print >> sys.stderr, '  ' + line
+                print >> sys.stderr, "\nRemainder of file ignored"
                 break
     if reset:
         known_paths = None
@@ -186,7 +188,7 @@ def addsitedir(sitedir, known_paths=None):
         reset = 0
     sitedir, sitedircase = makepath(sitedir)
     if not sitedircase in known_paths:
-        sys.path.append(sitedir)        # Add path component
+        sys.path.append(sitedir)  # Add path component
     try:
         names = os.listdir(sitedir)
     except os.error:
@@ -224,6 +226,7 @@ def check_enableusersite():
 
     return True
 
+
 def getuserbase():
     """Returns the `user base` directory path.
 
@@ -238,6 +241,7 @@ def getuserbase():
     USER_BASE = get_config_var('userbase')
     return USER_BASE
 
+
 def getusersitepackages():
     """Returns the user-specific site-packages directory path.
 
@@ -245,7 +249,7 @@ def getusersitepackages():
     function will also set it.
     """
     global USER_SITE
-    user_base = getuserbase() # this will also set USER_BASE
+    user_base = getuserbase()  # this will also set USER_BASE
 
     if USER_SITE is not None:
         return USER_SITE
@@ -255,6 +259,7 @@ def getusersitepackages():
 
     USER_SITE = get_path('purelib', '%s_user' % os.name)
     return USER_SITE
+
 
 def addusersitepackages(known_paths):
     """Add a per user site-package to sys.path
@@ -269,6 +274,7 @@ def addusersitepackages(known_paths):
     if ENABLE_USER_SITE and os.path.isdir(user_site):
         addsitedir(user_site, known_paths)
     return known_paths
+
 
 def getsitepackages():
     """Returns a list containing all global site-packages directories
@@ -287,10 +293,11 @@ def getsitepackages():
         seen.add(prefix)
 
         sitepackages.append(os.path.join(prefix, "lib",
-                                    "python." + sys.version[0] + sys.version[2],
-                                    "site-packages"))
+                                         "python." + sys.version[0] + sys.version[2],
+                                         "site-packages"))
         sitepackages.append(os.path.join(prefix, "lib", "site-python"))
     return sitepackages
+
 
 def addsitepackages(known_paths):
     """Add site-packages (and possibly site-python) to sys.path"""
@@ -299,6 +306,7 @@ def addsitepackages(known_paths):
             addsitedir(sitedir, known_paths)
 
     return known_paths
+
 
 def setBEGINLIBPATH():
     """The UEFI port has optional extension modules that do double duty
@@ -329,8 +337,10 @@ def setquit():
     class Quitter(object):
         def __init__(self, name):
             self.name = name
+
         def __repr__(self):
             return 'Use %s() or %s to exit' % (self.name, eof)
+
         def __call__(self, code=None):
             # Shells like IDLE catch the SystemExit, but listen when their
             # stdin wrapper is closed.
@@ -339,6 +349,7 @@ def setquit():
             except:
                 pass
             raise SystemExit(code)
+
     __builtin__.quit = Quitter('quit')
     __builtin__.exit = Quitter('exit')
 
@@ -382,7 +393,7 @@ class _Printer(object):
         if len(self.__lines) <= self.MAXLINES:
             return "\n".join(self.__lines)
         else:
-            return "Type %s() to see the full %s text" % ((self.__name,)*2)
+            return "Type %s() to see the full %s text" % ((self.__name,) * 2)
 
     def __call__(self):
         self.__setup()
@@ -391,7 +402,8 @@ class _Printer(object):
         while 1:
             try:
                 for i in range(lineno, lineno + self.MAXLINES):
-                    print self.__lines[i]
+                    print
+                    self.__lines[i]
             except IndexError:
                 break
             else:
@@ -403,6 +415,7 @@ class _Printer(object):
                         key = None
                 if key == 'q':
                     break
+
 
 def setcopyright():
     """Set 'copyright' and 'credits' in __builtin__"""
@@ -431,13 +444,15 @@ class _Helper(object):
         import pydoc
         return pydoc.help(*args, **kwds)
 
+
 def sethelper():
     __builtin__.help = _Helper()
+
 
 ####
 # Keep around for future mbcs support.
 ####
-#def aliasmbcs():
+# def aliasmbcs():
 #    """On Windows, some default encodings are not provided by Python,
 #    while they are always available as "mbcs" in each locale. Make
 #    them usable by aliasing to "mbcs" in such a case."""
@@ -456,7 +471,7 @@ def setencoding():
     """Set the string encoding used by the Unicode implementation.  The
     default is 'ascii', but if you're willing to experiment, you can
     change this."""
-    encoding = "ascii" # Default value set by _PyUnicode_Init()
+    encoding = "ascii"  # Default value set by _PyUnicode_Init()
     if 0:
         # Enable to support locale aware default string encodings.
         import locale
@@ -469,7 +484,7 @@ def setencoding():
         encoding = "undefined"
     if encoding != "ascii":
         # On Non-Unicode builds this will raise an AttributeError...
-        sys.setdefaultencoding(encoding) # Needs Python Unicode build !
+        sys.setdefaultencoding(encoding)  # Needs Python Unicode build !
 
 
 def execsitecustomize():
@@ -482,8 +497,8 @@ def execsitecustomize():
         if sys.flags.verbose:
             sys.excepthook(*sys.exc_info())
         else:
-            print >>sys.stderr, \
-                "'import sitecustomize' failed; use -v for traceback"
+            print >> sys.stderr, \
+            "'import sitecustomize' failed; use -v for traceback"
 
 
 def execusercustomize():
@@ -496,8 +511,8 @@ def execusercustomize():
         if sys.flags.verbose:
             sys.excepthook(*sys.exc_info())
         else:
-            print>>sys.stderr, \
-                "'import usercustomize' failed; use -v for traceback"
+            print >> sys.stderr, \
+            "'import usercustomize' failed; use -v for traceback"
 
 
 def main():
@@ -507,7 +522,7 @@ def main():
     setquit()
     setcopyright()
     sethelper()
-#    aliasmbcs()
+    #    aliasmbcs()
     setencoding()
     execsitecustomize()
     # Remove sys.setdefaultencoding() so that users cannot change the
@@ -516,7 +531,9 @@ def main():
     if hasattr(sys, "setdefaultencoding"):
         del sys.setdefaultencoding
 
+
 main()
+
 
 def _script():
     help = """\
@@ -524,14 +541,19 @@ def _script():
 
     Path elements are normally separated by '%s'.
     """
-    print "sys.path = ["
+    print
+    "sys.path = ["
     for dir in sys.path:
-        print "    %r," % (dir,)
-    print "]"
+        print
+        "    %r," % (dir,)
+    print
+    "]"
 
     import textwrap
-    print textwrap.dedent(help % (sys.argv[0], os.pathsep))
+    print
+    textwrap.dedent(help % (sys.argv[0], os.pathsep))
     sys.exit(0)
+
 
 if __name__ == '__main__':
     _script()

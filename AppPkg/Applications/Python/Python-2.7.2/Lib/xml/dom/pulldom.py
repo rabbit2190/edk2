@@ -1,6 +1,6 @@
+import types
 import xml.sax
 import xml.sax.handler
-import types
 
 try:
     _StringTypes = [types.StringType, types.UnicodeType]
@@ -15,6 +15,7 @@ END_DOCUMENT = "END_DOCUMENT"
 PROCESSING_INSTRUCTION = "PROCESSING_INSTRUCTION"
 IGNORABLE_WHITESPACE = "IGNORABLE_WHITESPACE"
 CHARACTERS = "CHARACTERS"
+
 
 class PullDOM(xml.sax.ContentHandler):
     _locator = None
@@ -32,7 +33,7 @@ class PullDOM(xml.sax.ContentHandler):
         except AttributeError:
             # use class' pop instead
             pass
-        self._ns_contexts = [{XML_NAMESPACE:'xml'}] # contains uri -> prefix dicts
+        self._ns_contexts = [{XML_NAMESPACE: 'xml'}]  # contains uri -> prefix dicts
         self._current_context = self._ns_contexts[-1]
         self.pending_events = []
 
@@ -54,7 +55,7 @@ class PullDOM(xml.sax.ContentHandler):
     def endPrefixMapping(self, prefix):
         self._current_context = self._ns_contexts.pop()
 
-    def startElementNS(self, name, tagName , attrs):
+    def startElementNS(self, name, tagName, attrs):
         # Retrieve xml namespace declaration attributes.
         xmlns_uri = 'http://www.w3.org/2000/xmlns/'
         xmlns_attrs = getattr(self, '_xmlns_attrs', None)
@@ -85,7 +86,7 @@ class PullDOM(xml.sax.ContentHandler):
             else:
                 node = self.buildDocument(None, localname)
 
-        for aname,value in attrs.items():
+        for aname, value in attrs.items():
             a_uri, a_localname = aname
             if a_uri == xmlns_uri:
                 if a_localname == 'xmlns':
@@ -121,7 +122,7 @@ class PullDOM(xml.sax.ContentHandler):
         else:
             node = self.buildDocument(None, name)
 
-        for aname,value in attrs.items():
+        for aname, value in attrs.items():
             attr = self.document.createAttribute(aname)
             attr.value = value
             node.setAttributeNode(attr)
@@ -178,14 +179,14 @@ class PullDOM(xml.sax.ContentHandler):
         # Put everything we have seen so far into the document
         for e in self.pending_events:
             if e[0][0] == PROCESSING_INSTRUCTION:
-                _,target,data = e[0]
+                _, target, data = e[0]
                 n = self.document.createProcessingInstruction(target, data)
                 e[0] = (PROCESSING_INSTRUCTION, n)
             elif e[0][0] == COMMENT:
                 n = self.document.createComment(e[0][1])
                 e[0] = (COMMENT, n)
             else:
-                raise AssertionError("Unknown pending event ",e[0][0])
+                raise AssertionError("Unknown pending event ", e[0][0])
             self.lastEvent[1] = e
             self.lastEvent = e
         self.pending_events = None
@@ -199,13 +200,18 @@ class PullDOM(xml.sax.ContentHandler):
         "clear(): Explicitly release parsing structures"
         self.document = None
 
+
 class ErrorHandler:
     def warning(self, exception):
-        print exception
+        print
+        exception
+
     def error(self, exception):
         raise exception
+
     def fatalError(self, exception):
         raise exception
+
 
 class DOMEventStream:
     def __init__(self, stream, parser, bufsize):
@@ -292,9 +298,10 @@ class DOMEventStream:
         self.parser = None
         self.stream = None
 
+
 class SAX2DOM(PullDOM):
 
-    def startElementNS(self, name, tagName , attrs):
+    def startElementNS(self, name, tagName, attrs):
         PullDOM.startElementNS(self, name, tagName, attrs)
         curNode = self.elementStack[-1]
         parentNode = self.elementStack[-2]
@@ -327,6 +334,7 @@ class SAX2DOM(PullDOM):
 
 default_bufsize = (2 ** 14) - 20
 
+
 def parse(stream_or_string, parser=None, bufsize=None):
     if bufsize is None:
         bufsize = default_bufsize
@@ -337,6 +345,7 @@ def parse(stream_or_string, parser=None, bufsize=None):
     if not parser:
         parser = xml.sax.make_parser()
     return DOMEventStream(stream, parser, bufsize)
+
 
 def parseString(string, parser=None):
     try:
